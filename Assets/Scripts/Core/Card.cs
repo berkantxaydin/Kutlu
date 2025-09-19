@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 // --- Models ---
@@ -156,32 +157,100 @@ public interface ICardRepository
     CardData GetById(string id);
 }
 
+[Serializable]
+public class CardJson
+{
+    public string id;
+    public string title;
+    public string description;
+    public List<CardChoiceJson> choices;
+}
+
+[Serializable]
+public class CardChoiceJson
+{
+    public string label;
+    public List<CardEffectJson> effects;
+    public List<CardConditionJson> conditions;
+}
+
+[Serializable]
+public class CardEffectJson
+{
+    public string resourceType;   // e.g., "Money"
+    public string capitalType;    // e.g., "Government"
+    public int amount;
+}
+
+[Serializable]
+public class CardConditionJson
+{
+    public string type;           // "Resource" or "Capital"
+    public string resourceType;
+    public string capitalType;
+    public int minAmount;
+    public float minHealth;
+}
+
 public class CardRepository : ICardRepository
 {
     private readonly Dictionary<string, CardData> _cards = new();
 
     public CardRepository()
     {
-        // Example card for testing
-        var card = new CardData(
-            "card_001",
-            "A New Tax",
-            "The government proposes a new tax to raise funds.",
-            new List<CardChoice>
-            {
-                new CardChoice(
-                    "Approve Tax",
-                    new List<CardEffect> { new CardEffect(ResourceType.Money, null, 20) }
-                ),
-                new CardChoice(
-                    "Reject Tax",
-                    new List<CardEffect> { new CardEffect(null, CapitalType.Government, -10) },
-                    new List<CardCondition> { new CapitalCondition(CapitalType.Government, 50) } // only if Government ≥ 50 health
-                )
-            }
-        );
+        LoadCardsFromJson();
+    }
 
-        _cards[card.Id] = card;
+    private void LoadCardsFromJson()
+    {
+        var jsonAssets = Resources.LoadAll<TextAsset>("Cards"); // Cards folder inside Resources
+        foreach (var asset in jsonAssets)
+        {
+            try
+            {
+                var cardJson = JsonUtility.FromJson<CardJson>(asset.text);
+                var cardData = ConvertToCardData(cardJson);
+                _cards[cardData.Id] = cardData;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Failed to load card from {asset.name}: {e}");
+            }
+        }
+    }
+
+    private CardData ConvertToCardData(CardJson json)
+    {
+        var choices = json.choices?.Select(c =>
+        {
+            var effects = c.effects?.Select(e =>
+            {
+                ResourceType? resType = string.IsNullOrEmpty(e.resourceType) ? (ResourceType?)null :
+                    Enum.Parse<ResourceType>(e.resourceType);
+                CapitalType? capType = string.IsNullOrEmpty(e.capitalType) ? (CapitalType?)null :
+                    Enum.Parse<CapitalType>(e.capitalType);
+                return new CardEffect(resType, capType, e.amount);
+            }).ToList() ?? new List<CardEffect>();
+
+            var conditions = c.conditions?.Select(cond =>
+            {
+                if (cond.type == "Resource")
+                {
+                    var resType = Enum.Parse<ResourceType>(cond.resourceType);
+                    return (CardCondition)new ResourceCondition(resType, cond.minAmount);
+                }
+                else if (cond.type == "Capital")
+                {
+                    var capType = Enum.Parse<CapitalType>(cond.capitalType);
+                    return (CardCondition)new CapitalCondition(capType, cond.minHealth);
+                }
+                return null;
+            }).Where(x => x != null).ToList() ?? new List<CardCondition>();
+
+            return new CardChoice(c.label, effects, conditions);
+        }).ToList() ?? new List<CardChoice>();
+
+        return new CardData(json.id, json.title, json.description, choices);
     }
 
     public IEnumerable<CardData> GetAll() => _cards.Values;
