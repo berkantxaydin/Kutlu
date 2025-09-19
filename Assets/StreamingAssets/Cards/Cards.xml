@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Cards>
+  <Card id="card_001">
+    <Title>A New Tax</Title>
+    <Description>The government proposes a new tax to raise funds.</Description>
+    <Choices>
+      <Choice>
+        <Label>Approve Tax</Label>
+        <Effects>
+          <Effect>
+            <ResourceType>Money</ResourceType>
+            <CapitalType></CapitalType>
+            <Amount>20</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+      <Choice>
+        <Label>Reject Tax</Label>
+        <Effects>
+          <Effect>
+            <ResourceType></ResourceType>
+            <CapitalType>Government</CapitalType>
+            <Amount>-10</Amount>
+          </Effect>
+        </Effects>
+        <Conditions>
+          <Condition type="Capital">
+            <CapitalType>Government</CapitalType>
+            <MinHealth>50</MinHealth>
+          </Condition>
+        </Conditions>
+      </Choice>
+    </Choices>
+  </Card>
+
+  <Card id="card_002">
+    <Title>Recruit Soldiers</Title>
+    <Description>Recruit additional soldiers to strengthen the army.</Description>
+    <Choices>
+      <Choice>
+        <Label>Recruit</Label>
+        <Effects>
+          <Effect>
+            <ResourceType>Money</ResourceType>
+            <CapitalType>Military</CapitalType>
+            <Amount>-30</Amount>
+          </Effect>
+        </Effects>
+        <Conditions>
+          <Condition type="Resource">
+            <ResourceType>Money</ResourceType>
+            <MinAmount>30</MinAmount>
+          </Condition>
+        </Conditions>
+      </Choice>
+      <Choice>
+        <Label>Do Not Recruit</Label>
+        <Effects>
+          <Effect>
+            <CapitalType>Military</CapitalType>
+            <Amount>-10</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+    </Choices>
+  </Card>
+
+  <Card id="card_003">
+    <Title>Public Festival</Title>
+    <Description>Host a festival to boost public happiness.</Description>
+    <Choices>
+      <Choice>
+        <Label>Host Festival</Label>
+        <Effects>
+          <Effect>
+            <ResourceType>Food</ResourceType>
+            <CapitalType>Population</CapitalType>
+            <Amount>-15</Amount>
+          </Effect>
+        </Effects>
+        <Conditions>
+          <Condition type="Resource">
+            <ResourceType>Money</ResourceType>
+            <MinAmount>15</MinAmount>
+          </Condition>
+        </Conditions>
+      </Choice>
+      <Choice>
+        <Label>Cancel Festival</Label>
+        <Effects>
+          <Effect>
+            <CapitalType>Population</CapitalType>
+            <Amount>-5</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+    </Choices>
+  </Card>
+
+  <Card id="card_004">
+    <Title>Build Wall</Title>
+    <Description>Construct a defensive wall to protect the city.</Description>
+    <Choices>
+      <Choice>
+        <Label>Build</Label>
+        <Effects>
+          <Effect>
+            <ResourceType>Money</ResourceType>
+            <CapitalType>Government</CapitalType>
+            <Amount>-25</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+      <Choice>
+        <Label>Ignore</Label>
+        <Effects>
+          <Effect>
+            <CapitalType>Population</CapitalType>
+            <Amount>-10</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+    </Choices>
+  </Card>
+
+  <Card id="card_005">
+    <Title>Trade Agreement</Title>
+    <Description>Sign a trade agreement with a neighboring nation.</Description>
+    <Choices>
+      <Choice>
+        <Label>Sign</Label>
+        <Effects>
+          <Effect>
+            <ResourceType>Money</ResourceType>
+            <CapitalType></CapitalType>
+            <Amount>15</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+      <Choice>
+        <Label>Refuse</Label>
+        <Effects>
+          <Effect>
+            <CapitalType>Government</CapitalType>
+            <Amount>-5</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+    </Choices>
+  </Card>
+
+  <Card id="card_006">
+    <Title>Medical Research</Title>
+    <Description>Invest in public health research.</Description>
+    <Choices>
+      <Choice>
+        <Label>Invest</Label>
+        <Effects>
+          <Effect>
+            <ResourceType>Money</ResourceType>
+            <CapitalType>Population</CapitalType>
+            <Amount>-20</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+      <Choice>
+        <Label>Skip</Label>
+        <Effects>
+          <Effect>
+            <CapitalType>Population</CapitalType>
+            <Amount>-10</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+    </Choices>
+  </Card>
+
+  <Card id="card_007">
+    <Title>Espionage</Title>
+    <Description>Send spies to a rival nation.</Description>
+    <Choices>
+      <Choice>
+        <Label>Send Spies</Label>
+        <Effects>
+          <Effect>
+            <ResourceType>Money</ResourceType>
+            <CapitalType>Military</CapitalType>
+            <Amount>-10</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+      <Choice>
+        <Label>Do Nothing</Label>
+        <Effects>
+          <Effect>
+            <CapitalType>Military</CapitalType>
+            <Amount>-5</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+    </Choices>
+  </Card>
+
+  <Card id="card_008">
+    <Title>Education Reform</Title>
+    <Description>Improve education system to increase population knowledge.</Description>
+    <Choices>
+      <Choice>
+        <Label>Implement Reform</Label>
+        <Effects>
+          <Effect>
+            <ResourceType>Money</ResourceType>
+            <CapitalType>Population</CapitalType>
+            <Amount>-25</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+      <Choice>
+        <Label>Ignore</Label>
+        <Effects>
+          <Effect>
+            <CapitalType>Population</CapitalType>
+            <Amount>-10</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+    </Choices>
+  </Card>
+
+  <Card id="card_009">
+    <Title>Military Parade</Title>
+    <Description>Show military strength to boost morale.</Description>
+    <Choices>
+      <Choice>
+        <Label>Hold Parade</Label>
+        <Effects>
+          <Effect>
+            <ResourceType>Money</ResourceType>
+            <CapitalType>Military</CapitalType>
+            <Amount>-15</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+      <Choice>
+        <Label>Cancel Parade</Label>
+        <Effects>
+          <Effect>
+            <CapitalType>Population</CapitalType>
+            <Amount>-5</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+    </Choices>
+  </Card>
+
+  <Card id="card_010">
+    <Title>Environmental Policy</Title>
+    <Description>Implement policies to protect the environment.</Description>
+    <Choices>
+      <Choice>
+        <Label>Implement</Label>
+        <Effects>
+          <Effect>
+            <ResourceType>Money</ResourceType>
+            <CapitalType>Government</CapitalType>
+            <Amount>-20</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+      <Choice>
+        <Label>Ignore</Label>
+        <Effects>
+          <Effect>
+            <CapitalType>Population</CapitalType>
+            <Amount>-10</Amount>
+          </Effect>
+        </Effects>
+      </Choice>
+    </Choices>
+  </Card>
+</Cards>
