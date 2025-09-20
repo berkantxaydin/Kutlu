@@ -157,100 +157,103 @@ public interface ICardRepository
     CardData GetById(string id);
 }
 
-[Serializable]
-public class CardJson
-{
-    public string id;
-    public string title;
-    public string description;
-    public List<CardChoiceJson> choices;
-}
-
-[Serializable]
-public class CardChoiceJson
-{
-    public string label;
-    public List<CardEffectJson> effects;
-    public List<CardConditionJson> conditions;
-}
-
-[Serializable]
-public class CardEffectJson
-{
-    public string resourceType;   // e.g., "Money"
-    public string capitalType;    // e.g., "Government"
-    public int amount;
-}
-
-[Serializable]
-public class CardConditionJson
-{
-    public string type;           // "Resource" or "Capital"
-    public string resourceType;
-    public string capitalType;
-    public int minAmount;
-    public float minHealth;
-}
-
 public class CardRepository : ICardRepository
 {
     private readonly Dictionary<string, CardData> _cards = new();
 
     public CardRepository()
     {
-        LoadCardsFromJson();
+        LoadCardsHardcoded();
     }
 
-    private void LoadCardsFromJson()
+    private void LoadCardsHardcoded()
     {
-        var jsonAssets = Resources.LoadAll<TextAsset>("Cards"); // Cards folder inside Resources
-        foreach (var asset in jsonAssets)
-        {
-            try
+        // Example Card 1: Government support
+        var card1 = new CardData(
+            id: "card_government_help",
+            title: "Government Support",
+            description: "The government offers financial assistance.",
+            choices: new List<CardChoice>
             {
-                var cardJson = JsonUtility.FromJson<CardJson>(asset.text);
-                var cardData = ConvertToCardData(cardJson);
-                _cards[cardData.Id] = cardData;
+                new CardChoice(
+                    label: "Accept funds",
+                    effects: new List<CardEffect>
+                    {
+                        new CardEffect(ResourceType.Money, null, 50), // +50 Money
+                    }
+                ),
+                new CardChoice(
+                    label: "Reject support",
+                    effects: new List<CardEffect>
+                    {
+                        new CardEffect(null, CapitalType.Government, -10), // -5 Government health
+                    }
+                )
             }
-            catch (Exception e)
+        );
+
+        // Example Card 2: Military draft with conditions
+        var card2 = new CardData(
+            id: "card_military_draft",
+            title: "Military Draft",
+            description: "The military wants to draft new recruits.",
+            choices: new List<CardChoice>
             {
-                Debug.LogError($"Failed to load card from {asset.name}: {e}");
+                new CardChoice(
+                    label: "Approve Draft",
+                    effects: new List<CardEffect>
+                    {
+                        new CardEffect(null, CapitalType.Military, +10) // Strengthen military
+                    },
+                    conditions: new List<CardCondition>
+                    {
+                        new CapitalCondition(CapitalType.Population, 20f) // Requires population health >= 20
+                    }
+                ),
+                new CardChoice(
+                    label: "Reject Draft",
+                    effects: new List<CardEffect>
+                    {
+                        new CardEffect(null, CapitalType.Government, -10) // Lose government approval
+                    }
+                )
             }
-        }
-    }
+        );
 
-    private CardData ConvertToCardData(CardJson json)
-    {
-        var choices = json.choices?.Select(c =>
-        {
-            var effects = c.effects?.Select(e =>
+        // Example Card 3: Resource condition
+        var card3 = new CardData(
+            id: "card_food_supply",
+            title: "Food Supply",
+            description: "Distribute food to the people.",
+            choices: new List<CardChoice>
             {
-                ResourceType? resType = string.IsNullOrEmpty(e.resourceType) ? (ResourceType?)null :
-                    Enum.Parse<ResourceType>(e.resourceType);
-                CapitalType? capType = string.IsNullOrEmpty(e.capitalType) ? (CapitalType?)null :
-                    Enum.Parse<CapitalType>(e.capitalType);
-                return new CardEffect(resType, capType, e.amount);
-            }).ToList() ?? new List<CardEffect>();
+                new CardChoice(
+                    label: "Distribute food",
+                    effects: new List<CardEffect>
+                    {
+                        new CardEffect(null, CapitalType.Population, +5)
+                    },
+                    conditions: new List<CardCondition>
+                    {
+                        new ResourceCondition(ResourceType.Food, 10) // Needs at least 10 food
+                    }
+                ),
+                new CardChoice(
+                    label: "Do nothing",
+                    effects: new List<CardEffect>
+                    {
+                        new CardEffect(null, CapitalType.Population, -5)
+                    }
+                )
+            }
+        );
 
-            var conditions = c.conditions?.Select(cond =>
-            {
-                if (cond.type == "Resource")
-                {
-                    var resType = Enum.Parse<ResourceType>(cond.resourceType);
-                    return (CardCondition)new ResourceCondition(resType, cond.minAmount);
-                }
-                else if (cond.type == "Capital")
-                {
-                    var capType = Enum.Parse<CapitalType>(cond.capitalType);
-                    return (CardCondition)new CapitalCondition(capType, cond.minHealth);
-                }
-                return null;
-            }).Where(x => x != null).ToList() ?? new List<CardCondition>();
+        // Add all cards to dictionary
+        _cards[card1.Id] = card1;
+        _cards[card2.Id] = card2;
+        _cards[card3.Id] = card3;
 
-            return new CardChoice(c.label, effects, conditions);
-        }).ToList() ?? new List<CardChoice>();
-
-        return new CardData(json.id, json.title, json.description, choices);
+        Debug.Log($"Loaded {_cards.Count} hardcoded cards.");
     }
 
     public IEnumerable<CardData> GetAll() => _cards.Values;
