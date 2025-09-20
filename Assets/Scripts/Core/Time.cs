@@ -6,6 +6,7 @@ public interface ITurnService
     int CurrentTurn { get; }
     event Action<int> OnTurnStarted;
     event Action<int> OnTurnEnded;
+    event Action<int> OnTurnDelay;
     UniTask StartTurnsAsync(int turnDelayMs = 1000);
     void Stop();
     void Pause(); // Pause the turn sequence
@@ -22,6 +23,7 @@ public class TurnService : ITurnService
 
     public event Action<int> OnTurnStarted;
     public event Action<int> OnTurnEnded;
+    public event Action<int> OnTurnDelay;
 
     public TurnService(ICapitalRepository capitalRepo, IResourceRepository resourceRepo)
     {
@@ -36,6 +38,7 @@ public class TurnService : ITurnService
 
     public async UniTask Resume()
     {
+        OnTurnDelay?.Invoke(CurrentTurn);
         await UniTask.Delay(1000);
         _isPaused = false;
     }

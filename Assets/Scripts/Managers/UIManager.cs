@@ -47,6 +47,12 @@ public class UIManager : MonoBehaviour
             MoneyText.text = $"Money: {resourceRepo.GetByType(ResourceType.Money)?.Amount ?? 0}";
             PowerText.text = $"Power: {resourceRepo.GetByType(ResourceType.Power)?.Amount ?? 0}";
         };
+        turnService.OnTurnDelay += _ =>
+        {
+            FoodText.text = $"Food: {resourceRepo.GetByType(ResourceType.Food)?.Amount ?? 0}";
+            MoneyText.text = $"Money: {resourceRepo.GetByType(ResourceType.Money)?.Amount ?? 0}";
+            PowerText.text = $"Power: {resourceRepo.GetByType(ResourceType.Power)?.Amount ?? 0}";
+        };
 
         _cardManager.OnCardDrawn += OnCardDrawnHandler;
 
