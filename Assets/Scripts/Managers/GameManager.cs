@@ -48,7 +48,7 @@ public class GameManager
                 _uiManager.ClearCardUI();
             }
 
-            _turnService.Resume();
+            await _turnService.Resume();
         }
 
         // Debug output for resources

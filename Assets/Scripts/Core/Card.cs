@@ -70,9 +70,15 @@ public class CardEffect
         if (ResourceType.HasValue)
         {
             var resource = resourceRepo.GetByType(ResourceType.Value);
-            resource?.Add(Amount);
+            if (resource != null)
+            {
+                if (Amount >= 0)
+                    resource.Add(Amount);
+                else
+                    resource.Spend(-Amount); // pass positive number to Spend
+            }
         }
-
+        
         if (CapitalType.HasValue)
         {
             var capital = capitalRepo.GetByName(CapitalType.Value.ToString());
@@ -159,8 +165,8 @@ public interface ICardRepository
 
 public class CardRepository : ICardRepository
 {
-    private readonly Dictionary<string, CardData> _cards = new();
-
+    private readonly Dictionary<string, CardData> _cardsIlerleme = new();
+    private readonly Dictionary<string, CardData> _cardsKaynakDestek = new();
     public CardRepository()
     {
         LoadCardsHardcoded();
@@ -171,22 +177,23 @@ public class CardRepository : ICardRepository
         // Example Card 1: Government support
         var card1 = new CardData(
             id: "card_government_help",
-            title: "Government Support",
-            description: "The government offers financial assistance.",
+            title: "Turnuva Düzenleme",
+            description: "Halkın eğlenmesi için bir turnuva düzenle: +10 Altın, -10 Yemek",
             choices: new List<CardChoice>
             {
                 new CardChoice(
-                    label: "Accept funds",
+                    label: "Kabul",
                     effects: new List<CardEffect>
                     {
-                        new CardEffect(ResourceType.Money, null, 50), // +50 Money
+                        new CardEffect(ResourceType.Money, null, 10), // +10 altın
+                        new CardEffect(ResourceType.Food, null, -10), // -10 yemek
                     }
                 ),
                 new CardChoice(
-                    label: "Reject support",
+                    label: "Red",
                     effects: new List<CardEffect>
                     {
-                        new CardEffect(null, CapitalType.Government, -10), // -5 Government health
+                         // 0 gelir 0 gider
                     }
                 )
             }
@@ -195,26 +202,24 @@ public class CardRepository : ICardRepository
         // Example Card 2: Military draft with conditions
         var card2 = new CardData(
             id: "card_military_draft",
-            title: "Military Draft",
-            description: "The military wants to draft new recruits.",
+            title: "Asker sayısını arttır",
+            description: "Ordu komutanları daha fazla askere ihtiyaç duyuyor: +10 Asker -10 Altın -5 yemek",
             choices: new List<CardChoice>
             {
                 new CardChoice(
-                    label: "Approve Draft",
+                    label: "Kabul",
                     effects: new List<CardEffect>
                     {
-                        new CardEffect(null, CapitalType.Military, +10) // Strengthen military
-                    },
-                    conditions: new List<CardCondition>
-                    {
-                        new CapitalCondition(CapitalType.Population, 20f) // Requires population health >= 20
+                        new CardEffect(ResourceType.Power, null, +10), // Strengthen military
+                        new CardEffect(ResourceType.Money, null, -10),
+                        new CardEffect(ResourceType.Food, null, -5),
                     }
                 ),
                 new CardChoice(
-                    label: "Reject Draft",
+                    label: "Red",
                     effects: new List<CardEffect>
                     {
-                        new CardEffect(null, CapitalType.Government, -10) // Lose government approval
+                       // Lose government approval
                     }
                 )
             }
@@ -223,41 +228,117 @@ public class CardRepository : ICardRepository
         // Example Card 3: Resource condition
         var card3 = new CardData(
             id: "card_food_supply",
-            title: "Food Supply",
-            description: "Distribute food to the people.",
+            title: "Çiftçilere Destek",
+            description: "Çiftlik verimliliğini arttırmak için hasat zamanı çiftçilere destek ver. : -10 para +10 yemek",
             choices: new List<CardChoice>
             {
                 new CardChoice(
-                    label: "Distribute food",
+                    label: "Kabul",
                     effects: new List<CardEffect>
                     {
-                        new CardEffect(null, CapitalType.Population, +5)
-                    },
-                    conditions: new List<CardCondition>
-                    {
-                        new ResourceCondition(ResourceType.Food, 10) // Needs at least 10 food
+                        new CardEffect(ResourceType.Food, null, +10),
+                        new CardEffect(ResourceType.Money, null, -10),
                     }
                 ),
                 new CardChoice(
-                    label: "Do nothing",
+                    label: "Red",
                     effects: new List<CardEffect>
                     {
-                        new CardEffect(null, CapitalType.Population, -5)
+                        
+                    }
+                )
+            }
+        );
+        
+        var card4 = new CardData(
+            id: "card_food_supply",
+            title: "Ahır Yap",
+            description: "Çiftlik verimini arttırmak için ahır yap. : +10f Çiftlik gücü, -20 altın",
+            choices: new List<CardChoice>
+            {
+                new CardChoice(
+                    label: "Kabul",
+                    effects: new List<CardEffect>
+                    {
+                        new CardEffect(null, CapitalType.Population, +10),
+                        new CardEffect(ResourceType.Money, null, -20),
+                    }
+                ),
+                new CardChoice(
+                    label: "Red",
+                    effects: new List<CardEffect>
+                    {
+                        
+                    }
+                )
+            }
+        );
+        
+        var card5 = new CardData(
+            id: "card_food_supply",
+            title: "Çiftçilere Destek",
+            description: "Çiftlik verimliliğini arttırmak için hasat zamanı çiftçilere destek ver. : -10 para +10 yemek",
+            choices: new List<CardChoice>
+            {
+                new CardChoice(
+                    label: "Kabul",
+                    effects: new List<CardEffect>
+                    {
+                        new CardEffect(ResourceType.Food, null, +10),
+                        new CardEffect(ResourceType.Money, null, -10),
+                    }
+                ),
+                new CardChoice(
+                    label: "Red",
+                    effects: new List<CardEffect>
+                    {
+                        
+                    }
+                )
+            }
+        );
+        
+        var card6 = new CardData(
+            id: "card_food_supply",
+            title: "Çiftçilere Destek",
+            description: "Çiftlik verimliliğini arttırmak için hasat zamanı çiftçilere destek ver. : -10 para +10 yemek",
+            choices: new List<CardChoice>
+            {
+                new CardChoice(
+                    label: "Kabul",
+                    effects: new List<CardEffect>
+                    {
+                        new CardEffect(ResourceType.Food, null, +10),
+                        new CardEffect(ResourceType.Money, null, -10),
+                    }
+                ),
+                new CardChoice(
+                    label: "Red",
+                    effects: new List<CardEffect>
+                    {
+                        
                     }
                 )
             }
         );
 
-        // Add all cards to dictionary
-        _cards[card1.Id] = card1;
-        _cards[card2.Id] = card2;
-        _cards[card3.Id] = card3;
-
-        Debug.Log($"Loaded {_cards.Count} hardcoded cards.");
+       
+        _cardsIlerleme[card1.Id] = card1; // İlerleme
+        _cardsIlerleme[card2.Id] = card2;
+        _cardsIlerleme[card3.Id] = card3;
+        _cardsIlerleme[card4.Id] = card4; // KaynakDestek
+        _cardsIlerleme[card5.Id] = card5;
+        _cardsIlerleme[card6.Id] = card6;
+       
+       
+        
+        Debug.Log($"Loaded {_cardsIlerleme.Count} hardcoded cards.");
     }
 
-    public IEnumerable<CardData> GetAll() => _cards.Values;
-
+    public IEnumerable<CardData> GetAll() => _cardsIlerleme.Values;
+   
     public CardData GetById(string id) =>
-        _cards.TryGetValue(id, out var card) ? card : null;
+        _cardsIlerleme.TryGetValue(id, out var card) ? card : null;
+   
+    
 }

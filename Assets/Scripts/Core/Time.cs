@@ -9,7 +9,7 @@ public interface ITurnService
     UniTask StartTurnsAsync(int turnDelayMs = 1000);
     void Stop();
     void Pause(); // Pause the turn sequence
-    void Resume();
+    UniTask Resume();
 }
 
 public class TurnService : ITurnService
@@ -33,7 +33,12 @@ public class TurnService : ITurnService
     private bool _isPaused = false;
 
     public void Pause() => _isPaused = true;
-    public void Resume() => _isPaused = false;
+
+    public async UniTask Resume()
+    {
+        await UniTask.Delay(1000);
+        _isPaused = false;
+    }
 
     public async UniTask StartTurnsAsync(int turnDelayMs = 1000)
     {
