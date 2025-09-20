@@ -1,0 +1,23 @@
+{
+  "id": "card_001",
+  "title": "A New Tax",
+  "description": "The government proposes a new tax to raise funds.",
+  "choices": [
+    {
+      "label": "Approve Tax",
+      "effects": [
+        { "resourceType": "Money", "capitalType": null, "amount": 20 }
+      ],
+      "conditions": []
+    },
+    {
+      "label": "Reject Tax",
+      "effects": [
+        { "resourceType": null, "capitalType": "Government", "amount": -10 }
+      ],
+      "conditions": [
+        { "type": "Capital", "capitalType": "Government", "minHealth": 50 }
+      ]
+    }
+  ]
+}

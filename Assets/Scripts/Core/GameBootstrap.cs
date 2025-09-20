@@ -17,7 +17,7 @@ public class GameBootstrap : MonoBehaviour
         var cardManager = new CardManager(cardRepo, capitalRepo, resourceRepo);
 
         // UI
-        UIManager.Initialize(turnService, resourceRepo, cardManager);
+        UIManager.Initialize(turnService, resourceRepo, cardManager, capitalRepo);
 
         // Game Manager
         var gameManager = new GameManager(turnService, cardManager, capitalRepo, resourceRepo, UIManager);

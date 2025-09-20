@@ -20,15 +20,25 @@ public class UIManager : MonoBehaviour
     public Button ChoiceButtonPrefab;   // prefab for clickable choices
 
     private ICardManager _cardManager;
-
+    private IResourceRepository _resourceRepo;
+    private ICapitalRepository _capitalRepo;
     private UniTaskCompletionSource<CardChoice> _choiceTcs;
+
+    public ICapitalRepository CapitalRepo { get; private set; }
+    public IResourceRepository ResourceRepo { get; private set; }
 
     public void Initialize(
         ITurnService turnService,
         IResourceRepository resourceRepo,
-        ICardManager cardManager)
+        ICardManager cardManager,
+        ICapitalRepository capitalRepo)
     {
+        _resourceRepo = resourceRepo;
+        _capitalRepo = capitalRepo;
         _cardManager = cardManager;
+
+        CapitalRepo = capitalRepo;
+        ResourceRepo = resourceRepo;
 
         turnService.OnTurnStarted += turn => TimeText.text = $"Turn: {turn}";
         turnService.OnTurnEnded += _ =>
@@ -38,7 +48,16 @@ public class UIManager : MonoBehaviour
             PowerText.text = $"Power: {resourceRepo.GetByType(ResourceType.Power)?.Amount ?? 0}";
         };
 
-        _cardManager.OnCardDrawn += DisplayCard;
+        _cardManager.OnCardDrawn += OnCardDrawnHandler;
+
+    }
+
+    private void OnCardDrawnHandler(CardDrawResult result)
+    {
+        if (result == null || result.Choices.Count == 0)
+            return;
+
+        DisplayCard(result.Card, result.Choices);
     }
 
     public void DisplayCard(CardData card, List<CardChoice> choices)
@@ -56,70 +75,52 @@ public class UIManager : MonoBehaviour
         {
             var btn = Instantiate(ChoiceButtonPrefab, ChoicesContainer);
             btn.GetComponentInChildren<TMP_Text>().text = choice.Label;
-            btn.interactable = choice.IsAvailable(null, null); // UI only; already filtered in CardManager
 
+            bool isChoiceAvailable = choice.IsAvailable(CapitalRepo, ResourceRepo);
+            btn.interactable = choice.IsAvailable(CapitalRepo, ResourceRepo);
+
+
+            btn.interactable = choice.IsAvailable(CapitalRepo, ResourceRepo);
+
+
+            // Visual feedback
+            var buttonImage = btn.GetComponent<Image>();
+            buttonImage.color = isChoiceAvailable ? Color.white : Color.gray;
+
+            // Click listener
             btn.onClick.AddListener(() =>
             {
-                _choiceTcs?.TrySetResult(choice);
-            });
-
-            // Check if the choice is available
-            bool isChoiceAvailable = choice.IsAvailable(null, null);
-            btn.interactable = isChoiceAvailable;
-
-            // Visual feedback: Disable unavailable choices
-            if (!isChoiceAvailable)
-            {
-                var buttonImage = btn.GetComponent<Image>();
-                buttonImage.color = Color.gray; // Gray out the button if unavailable
-            }
-            else
-            {
-                var buttonImage = btn.GetComponent<Image>();
-                buttonImage.color = Color.white; // Reset to default color when available
-            }
-
-            // Add listener for button click
-            btn.onClick.AddListener(() =>
-            {
-                if (isChoiceAvailable)  // Make sure the choice is available before selecting
+                if (isChoiceAvailable)
                 {
                     _choiceTcs?.TrySetResult(choice);
                 }
             });
 
-            // Optional: Add hover effects
-            var buttonEvent = btn.GetComponent<Button>();
-            AddHoverEffect(buttonEvent, btn);
+            // Hover only if available
+            if (isChoiceAvailable)
+            {
+                AddHoverEffect(btn);
+            }
         }
+
     }
 
-    // Hover effect on buttons
-    private void AddHoverEffect(Button button, Button btn)
+    private void AddHoverEffect(Button btn)
     {
-        var buttonEvent = btn.GetComponent<Button>();
+        var trigger = btn.gameObject.AddComponent<EventTrigger>();
+        trigger.triggers = new List<EventTrigger.Entry>();
 
-        // Hover events
-        buttonEvent.onClick.AddListener(() => OnButtonClick(btn));
-        var pointerEnter = buttonEvent.gameObject.AddComponent<EventTrigger>();
-        pointerEnter.triggers = new List<EventTrigger.Entry>();
+        // Hover enter
+        var entryEnter = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
+        entryEnter.callback.AddListener((_) => OnButtonHoverEnter(btn));
+        trigger.triggers.Add(entryEnter);
 
-        // On hover enter
-        EventTrigger.Entry entryEnter = new EventTrigger.Entry
-        {
-            eventID = EventTriggerType.PointerEnter
-        };
-        entryEnter.callback.AddListener((data) => OnButtonHoverEnter(btn));
-        pointerEnter.triggers.Add(entryEnter);
-
-        // On hover exit
-        EventTrigger.Entry entryExit = new EventTrigger.Entry
-        {
-            eventID = EventTriggerType.PointerExit
-        };
-        entryExit.callback.AddListener((data) => OnButtonHoverExit(btn));
-        pointerEnter.triggers.Add(entryExit);
+        // Hover exit
+        var entryExit = new EventTrigger.Entry { eventID = EventTriggerType.PointerExit };
+        entryExit.callback.AddListener((_) => OnButtonHoverExit(btn));
+        trigger.triggers.Add(entryExit);
     }
+
 
     // Change button color when hovered
     private void OnButtonHoverEnter(Button button)

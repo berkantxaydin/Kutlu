@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 public interface ICardManager
 {
-    UniTask<CardData> DrawCardAsync();
-    event Action<CardData, List<CardChoice>> OnCardDrawn;
+    UniTask<CardDrawResult> DrawCardAsync();
     UniTask ApplyChoiceAsync(CardData card, CardChoice choice);
+
+    event Action<CardDrawResult> OnCardDrawn;
+    event Action<CardData, CardChoice> OnChoiceApplied;
 }
 
 public class CardManager : ICardManager
@@ -18,7 +20,7 @@ public class CardManager : ICardManager
     private readonly IResourceRepository _resourceRepo;
     private readonly Random _random = new Random();
 
-    public event Action<CardData, List<CardChoice>> OnCardDrawn;
+    public event Action<CardDrawResult> OnCardDrawn;
     public event Action<CardData, CardChoice> OnChoiceApplied;
 
     public CardManager(
@@ -31,27 +33,25 @@ public class CardManager : ICardManager
         _resourceRepo = resourceRepo;
     }
 
-    public async UniTask<CardData> DrawCardAsync()
+    public async UniTask<CardDrawResult> DrawCardAsync()
     {
-        // Offload the CPU-bound task to a background thread
+        // Offload heavy work to background thread
         var cards = await Task.Run(() => _cardRepo.GetAll().ToList());
-
         if (cards.Count == 0)
-        {
-            return null; // Return null if there are no cards.
-        }
+            return null;
 
         var card = cards[_random.Next(cards.Count)];
 
-        // CPU-bound work can also be offloaded if needed
         var availableChoices = await Task.Run(() => card.Choices
             .Where(c => c.IsAvailable(_capitalRepo, _resourceRepo))
             .ToList());
 
-        OnCardDrawn?.Invoke(card, availableChoices);
+        var result = new CardDrawResult(card, availableChoices);
 
-        return card;
+        OnCardDrawn?.Invoke(result);
+        return result;
     }
+
 
     public async UniTask ApplyChoiceAsync(CardData card, CardChoice choice)
     {
@@ -60,7 +60,6 @@ public class CardManager : ICardManager
             throw new InvalidOperationException("Choice is locked and cannot be applied.");
         }
 
-        // Apply effects
         foreach (var effect in choice.Effects)
         {
             effect.Apply(_capitalRepo, _resourceRepo);
@@ -68,6 +67,18 @@ public class CardManager : ICardManager
 
         OnChoiceApplied?.Invoke(card, choice);
 
-        await UniTask.Yield(); // keep async-friendly
+        await UniTask.Yield(); // keeps async flow friendly
+    }
+}
+
+public class CardDrawResult
+{
+    public CardData Card { get; }
+    public List<CardChoice> Choices { get; }
+
+    public CardDrawResult(CardData card, List<CardChoice> choices)
+    {
+        Card = card;
+        Choices = choices ?? new List<CardChoice>();
     }
 }

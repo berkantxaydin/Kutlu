@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 public class GameManager
 {
@@ -25,53 +26,43 @@ public class GameManager
         _uiManager = uiManager;
 
         // Subscribe to turn end event
-        _turnService.OnTurnEnded += HandleTurnEnded;
+        _turnService.OnTurnEnded += turn => UniTask.Void(async () => await HandleTurnEndedAsync(turn));
+    }
+
+    private async UniTask HandleTurnEndedAsync(int turn)
+    {
+        Debug.Log($"Turn {turn} ended.");
+
+        // Show card every _turnsPerCard turns
+        if (turn % _turnsPerCard == 0)
+        {
+            _turnService.Pause();
+
+            var drawResult = await _cardManager.DrawCardAsync();
+
+            // Only wait for choice if there are available choices
+            if (drawResult?.Choices?.Count > 0)
+            {
+                var chosen = await _uiManager.WaitForChoiceAsync();
+                await _cardManager.ApplyChoiceAsync(drawResult.Card, chosen);
+                _uiManager.ClearCardUI();
+            }
+
+            _turnService.Resume();
+        }
+
+        // Debug output for resources
+        foreach (var resource in _resourceRepo.GetAll())
+            Debug.Log($"{resource.Type}: {resource.Amount}");
+
+        // Debug output for capitals
+        foreach (var capital in _capitalRepo.GetAll())
+            Debug.Log($"{capital.Name} Health: {capital.Health}");
     }
 
     public async UniTask StartGameAsync()
     {
         await _turnService.StartTurnsAsync(turnDelayMs: 1000);
-    }
-
-    private async void HandleTurnEnded(int turn)
-    {
-        Console.WriteLine($"Turn {turn} ended.");
-
-        // Show a card every _turnsPerCard turns
-        if (turn % _turnsPerCard == 0)
-        {
-            // Pause turn loop
-            _turnService.Pause();
-
-            var card = await _cardManager.DrawCardAsync();
-            if (card != null)
-            {
-                // Show card in UI and wait for player choice
-                _uiManager.DisplayCard(card, card.Choices);
-                var chosen = await _uiManager.WaitForChoiceAsync();
-
-                // Apply choice effects
-                await _cardManager.ApplyChoiceAsync(card, chosen);
-
-                // Clear card UI
-                _uiManager.ClearCardUI();
-            }
-
-            // Resume turn loop
-            _turnService.Resume();
-        }
-
-        // Print resource states for debugging
-        foreach (var resource in _resourceRepo.GetAll())
-        {
-            Console.WriteLine($"{resource.Type}: {resource.Amount}");
-        }
-
-        // Print capitals' health
-        foreach (var capital in _capitalRepo.GetAll())
-        {
-            Console.WriteLine($"{capital.Name} Health: {capital.Health}");
-        }
     }
 
     public void StopGame()
