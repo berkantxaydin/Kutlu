@@ -38,7 +38,7 @@ public abstract class CapitalBase
 
 public class Government : CapitalBase
 {
-    public Government(float initialHealth = 50f)
+    public Government(float initialHealth = 100f)
         : base("Government", ResourceType.Money, initialHealth)
     {
         ProductionRate = 10; // base rate for Money
@@ -47,19 +47,19 @@ public class Government : CapitalBase
 
 public class Population : CapitalBase
 {
-    public Population(float initialHealth = 50f)
+    public Population(float initialHealth = 100f)
         : base("Population", ResourceType.Food, initialHealth)
     {
-        ProductionRate = 10; // base rate for Food
+        ProductionRate = 8; // base rate for Food
     }
 }
 
 public class Military : CapitalBase
 {
-    public Military(float initialHealth = 50f)
+    public Military(float initialHealth = 100f)
         : base("Military", ResourceType.Power, initialHealth)
     {
-        ProductionRate = 10; // base rate for Power
+        ProductionRate = 6; // base rate for Power
     }
 }
 
