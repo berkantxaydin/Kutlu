@@ -1,11 +1,7 @@
-﻿using Cysharp.Threading.Tasks;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Xml.Linq;
 using UnityEngine;
-using UnityEngine.Networking;
 
 // --- Models ---
 
@@ -200,136 +196,61 @@ public class CardRepository : ICardRepository
 {
     private readonly Dictionary<string, CardData> _cards = new();
 
-    public CardRepository(){}
-
-    public async UniTask InitializeAsync()
+    public CardRepository()
     {
-        await LoadCardsFromXmlAsync();
+        LoadCardsFromJson();
     }
 
-    private async UniTask LoadCardsFromXmlAsync()
+    private void LoadCardsFromJson()
     {
-        string cardsDir = Path.Combine(Application.streamingAssetsPath, "Cards");
-        List<string> xmlFiles;
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-    // WebGL: use manifest
-    string manifestPath = Path.Combine(cardsDir, "cardsList.json");
-    string manifestJson = await LoadTextAsync(manifestPath);
-    if (string.IsNullOrEmpty(manifestJson))
-    {
-        Debug.LogError("Card manifest is missing!");
-        return;
-    }
-    xmlFiles = JsonUtility.FromJson<CardListWrapper>(manifestJson).files;
-#else
-        // Windows/Android/Editor: read directory normally
-        if (!Directory.Exists(cardsDir))
+        var jsonAssets = Resources.LoadAll<TextAsset>("Cards"); // Cards folder inside Resources
+        foreach (var asset in jsonAssets)
         {
-            Debug.LogWarning($"Cards folder not found: {cardsDir}");
-            return;
-        }
-        xmlFiles = Directory.GetFiles(cardsDir, "*.xml").Select(Path.GetFileName).ToList();
-#endif
-
-        foreach (var fileName in xmlFiles)
-        {
-            string fullPath = Path.Combine(cardsDir, fileName);
-            string xmlText = await LoadTextAsync(fullPath);
-            if (string.IsNullOrEmpty(xmlText)) continue;
-
             try
             {
-                XDocument doc = XDocument.Parse(xmlText); // parse from string
-                var cardElements = doc.Root?.Elements("Card");
-                if (cardElements == null) continue;
-
-                foreach (var cardEl in cardElements)
-                {
-                    var cardData = ParseCard(cardEl);
-                    _cards[cardData.Id] = cardData;
-                }
+                var cardJson = JsonUtility.FromJson<CardJson>(asset.text);
+                var cardData = ConvertToCardData(cardJson);
+                _cards[cardData.Id] = cardData;
             }
             catch (Exception e)
             {
-                Debug.LogError($"Failed to parse card {fileName}: {e}");
+                Debug.LogError($"Failed to load card from {asset.name}: {e}");
             }
         }
-
-        Debug.Log($"Loaded {_cards.Count} cards from XML.");
     }
 
-    private async UniTask<string> LoadTextAsync(string path)
+    private CardData ConvertToCardData(CardJson json)
     {
-        using var req = UnityWebRequest.Get(path);
-        await req.SendWebRequest();
-
-        if (req.result != UnityWebRequest.Result.Success)
+        var choices = json.choices?.Select(c =>
         {
-            Debug.LogError($"Failed to load {path}: {req.error}");
-            return null;
-        }
-
-        return req.downloadHandler.text;
-    }
-
-    [Serializable]
-    public class CardListWrapper
-    {
-        public List<string> files;
-    }
-
-
-    private CardData ParseCard(XElement cardEl)
-    {
-        string id = cardEl.Attribute("id")?.Value;
-        string title = cardEl.Element("Title")?.Value ?? "No Title";
-        string description = cardEl.Element("Description")?.Value ?? "";
-
-        var choices = cardEl.Element("Choices")?.Elements("Choice").Select(choiceEl =>
-        {
-            string label = choiceEl.Element("Label")?.Value ?? "No Label";
-
-            var effects = choiceEl.Element("Effects")?.Elements("Effect").Select(effEl =>
+            var effects = c.effects?.Select(e =>
             {
-                ResourceType? resType = null;
-                CapitalType? capType = null;
-
-                string resStr = effEl.Element("ResourceType")?.Value;
-                if (!string.IsNullOrEmpty(resStr))
-                    resType = Enum.Parse<ResourceType>(resStr);
-
-                string capStr = effEl.Element("CapitalType")?.Value;
-                if (!string.IsNullOrEmpty(capStr))
-                    capType = Enum.Parse<CapitalType>(capStr);
-
-                int amount = int.Parse(effEl.Element("Amount")?.Value ?? "0");
-
-                return new CardEffect(resType, capType, amount);
+                ResourceType? resType = string.IsNullOrEmpty(e.resourceType) ? (ResourceType?)null :
+                    Enum.Parse<ResourceType>(e.resourceType);
+                CapitalType? capType = string.IsNullOrEmpty(e.capitalType) ? (CapitalType?)null :
+                    Enum.Parse<CapitalType>(e.capitalType);
+                return new CardEffect(resType, capType, e.amount);
             }).ToList() ?? new List<CardEffect>();
 
-            var conditions = choiceEl.Element("Conditions")?.Elements("Condition").Select(condEl =>
+            var conditions = c.conditions?.Select(cond =>
             {
-                string type = condEl.Attribute("type")?.Value;
-                if (type == "Resource")
+                if (cond.type == "Resource")
                 {
-                    var resType = Enum.Parse<ResourceType>(condEl.Element("ResourceType")?.Value);
-                    int minAmount = int.Parse(condEl.Element("MinAmount")?.Value ?? "0");
-                    return (CardCondition)new ResourceCondition(resType, minAmount);
+                    var resType = Enum.Parse<ResourceType>(cond.resourceType);
+                    return (CardCondition)new ResourceCondition(resType, cond.minAmount);
                 }
-                else if (type == "Capital")
+                else if (cond.type == "Capital")
                 {
-                    var capType = Enum.Parse<CapitalType>(condEl.Element("CapitalType")?.Value);
-                    float minHealth = float.Parse(condEl.Element("MinHealth")?.Value ?? "0");
-                    return (CardCondition)new CapitalCondition(capType, minHealth);
+                    var capType = Enum.Parse<CapitalType>(cond.capitalType);
+                    return (CardCondition)new CapitalCondition(capType, cond.minHealth);
                 }
                 return null;
             }).Where(x => x != null).ToList() ?? new List<CardCondition>();
 
-            return new CardChoice(label, effects, conditions);
+            return new CardChoice(c.label, effects, conditions);
         }).ToList() ?? new List<CardChoice>();
 
-        return new CardData(id, title, description, choices);
+        return new CardData(json.id, json.title, json.description, choices);
     }
 
     public IEnumerable<CardData> GetAll() => _cards.Values;

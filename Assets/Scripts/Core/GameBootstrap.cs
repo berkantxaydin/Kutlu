@@ -57,7 +57,7 @@ public class GameBootstrap : MonoBehaviour
         UIManager.Initialize(turnService, resourceRepo, cardManager, capitalRepo);
 
         // Game Manager
-        var gameManager = new GameManager(turnService, cardManager, capitalRepo, resourceRepo, UIManager, cardRepo);
+        var gameManager = new GameManager(turnService, cardManager, capitalRepo, resourceRepo, UIManager);
 
         // Start the game loop
         await gameManager.StartGameAsync();
