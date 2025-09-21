@@ -440,7 +440,7 @@ public class CardRepository : ICardRepository
         var card10 = new CardData(
             id: "card_food_supply",
             title: "Kış geliyor...",
-            description: "İklim değişiyor fakat hasatların buna hazır değil.: -30f çiftlik medeniyeti",
+            description: "İklim değişiyor fakat hasatların buna hazır değil.: -20f çiftlik medeniyeti , -20 yemek",
             choices: new List<CardChoice>
             {
                 new CardChoice(
@@ -448,7 +448,7 @@ public class CardRepository : ICardRepository
                     effects: new List<CardEffect>
                     {
                         new CardEffect(ResourceType.Food, null, -20),
-                        new CardEffect(null, CapitalType.Population, -10),
+                        new CardEffect(null, CapitalType.Population, -20),
                     }
                 )
             }
@@ -456,7 +456,7 @@ public class CardRepository : ICardRepository
         var card11 = new CardData(
             id: "card_food_supply",
             title: "Ejderha saldırısı!",
-            description: "Tüccar medeniyet şehrine bir ejderha ağzından alevler çıkararak saldırıyor!: -30f tüccar medeniyeti",
+            description: "Tüccar medeniyet şehrine bir ejderha ağzından alevler çıkararak saldırıyor!: -30f tüccar medeniyeti, -20 altın",
             choices: new List<CardChoice>
             {
                 new CardChoice(
@@ -464,7 +464,7 @@ public class CardRepository : ICardRepository
                     effects: new List<CardEffect>
                     {
                         new CardEffect(ResourceType.Money, null, -20),
-                        new CardEffect(null, CapitalType.Government, -10),
+                        new CardEffect(null, CapitalType.Government, -30),
                     }
                 )
             }
@@ -472,15 +472,15 @@ public class CardRepository : ICardRepository
         var card12 = new CardData(
             id: "card_food_supply",
             title: "Kale Kuşatması!",
-            description: "Düşman medeniyetler sana karşı devasa bir ordu kurmuş ve asker medeniyetin bu saldırıya hazırlanmalı. : -30f asker medeniyeti",
+            description: "Düşman medeniyetler sana karşı devasa bir ordu kurmuş ve asker medeniyetin bu saldırıya hazırlanmalı. : -20f asker medeniyeti, -20 asker",
             choices: new List<CardChoice>
             {
                 new CardChoice(
                     label: "Tamam",
                     effects: new List<CardEffect>
                     {
-                        new CardEffect(ResourceType.Power, null, -20),
-                        new CardEffect(null, CapitalType.Military, -10),
+                        new CardEffect(ResourceType.Power, null, -10),
+                        new CardEffect(null, CapitalType.Military, -20),
                     }
                 )
             }
@@ -488,51 +488,46 @@ public class CardRepository : ICardRepository
         var card13 = new CardData(
             id: "card_food_supply",
             title: "Meydan Muharrebesi!",
-            description: "Düşman medeniyetler sana karşı devasa bir ordu kurmuş ve asker medeniyetin bu saldırıya hazırlanmalı. : -30f asker medeniyeti",
+            description: "Düşman medeniyetler sana karşı devasa bir ordu kurmuş ve komutanların savaşa destek istiyor. Kabul : -30 asker, -20 altın , -20 yemek. Red : -30f ordu gücü",
             choices: new List<CardChoice>
             {
                 new CardChoice(
-                    label: "Tamam",
+                    label: "Kabul",
                     effects: new List<CardEffect>
                     {
-                        new CardEffect(ResourceType.Power, null, -20),
-                        new CardEffect(null, CapitalType.Military, -10),
+                        new CardEffect(ResourceType.Power, null, -30),
+                        new CardEffect(ResourceType.Food, null, -20),
+                        new CardEffect(ResourceType.Money, null, -20),
                     }
+                ),
+                new CardChoice(
+                    label: "Red",
+                    effects: new List<CardEffect>
+                {
+                    
+                    new CardEffect(null, CapitalType.Military, -30),
+                }
                 )
             }
         );
         var card14 = new CardData(
             id: "card_food_supply",
             title: "Düşman köyüne saldırı!",
-            description: "Düşman medeniyetler sana karşı devasa bir ordu kurmuş ve asker medeniyetin bu saldırıya hazırlanmalı. : -30f asker medeniyeti",
+            description: "Subaylar yağma yapmak istiyor. Kabul : -10 asker. +10 altın + 10 yemek  Red :  -10f ordu gücü",
             choices: new List<CardChoice>
             {
                 new CardChoice(
                     label: "Tamam",
                     effects: new List<CardEffect>
                     {
-                        new CardEffect(ResourceType.Power, null, -20),
-                        new CardEffect(null, CapitalType.Military, -10),
+                        new CardEffect(ResourceType.Power, null, -10),
+                        new CardEffect(ResourceType.Food, null, +10),
+                        new CardEffect(ResourceType.Money, null, +10),
                     }
                 )
             }
         );
-        var card15 = new CardData(
-            id: "card_food_supply",
-            title: "Kervan saldırısı!",
-            description: "Düşman medeniyetler sana karşı devasa bir ordu kurmuş ve asker medeniyetin bu saldırıya hazırlanmalı. : -30f asker medeniyeti",
-            choices: new List<CardChoice>
-            {
-                new CardChoice(
-                    label: "Tamam",
-                    effects: new List<CardEffect>
-                    {
-                        new CardEffect(ResourceType.Power, null, -20),
-                        new CardEffect(null, CapitalType.Military, -10),
-                    }
-                )
-            }
-        );
+        
        
         _decks[DeckType.Ilerleme][card1.Id] = card1;
         _decks[DeckType.Ilerleme][card2.Id] = card2;
@@ -551,7 +546,6 @@ public class CardRepository : ICardRepository
         _decks[DeckType.BigEvent][card12.Id] = card12;
         _decks[DeckType.BigEvent][card13.Id] = card13;
         _decks[DeckType.BigEvent][card14.Id] = card14;
-        _decks[DeckType.BigEvent][card15.Id] = card15;
         Debug.Log($"Loaded {_decks.Sum(d => d.Value.Count)} hardcoded cards across {_decks.Count} decks.");
     }
 
