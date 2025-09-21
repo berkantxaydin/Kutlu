@@ -45,18 +45,18 @@ public class UIManager : MonoBehaviour
         CapitalRepo = capitalRepo;
         ResourceRepo = resourceRepo;
 
-        turnService.OnTurnStarted += turn => TimeText.text = $"Turn: {turn}";
+        turnService.OnTurnStarted += turn => TimeText.text = $"{turn}";
         turnService.OnTurnEnded += _ =>
         {
-            FoodText.text = $"Food: {resourceRepo.GetByType(ResourceType.Food)?.Amount ?? 0}";
-            MoneyText.text = $"Money: {resourceRepo.GetByType(ResourceType.Money)?.Amount ?? 0}";
-            PowerText.text = $"Power: {resourceRepo.GetByType(ResourceType.Power)?.Amount ?? 0}";
+            FoodText.text = $"{resourceRepo.GetByType(ResourceType.Food)?.Amount ?? 0}";
+            MoneyText.text = $"{resourceRepo.GetByType(ResourceType.Money)?.Amount ?? 0}";
+            PowerText.text = $"{resourceRepo.GetByType(ResourceType.Power)?.Amount ?? 0}";
         };
         turnService.OnTurnDelay += _ =>
         {
-            FoodText.text = $"Food: {resourceRepo.GetByType(ResourceType.Food)?.Amount ?? 0}";
-            MoneyText.text = $"Money: {resourceRepo.GetByType(ResourceType.Money)?.Amount ?? 0}";
-            PowerText.text = $"Power: {resourceRepo.GetByType(ResourceType.Power)?.Amount ?? 0}";
+            FoodText.text = $"{resourceRepo.GetByType(ResourceType.Food)?.Amount ?? 0}";
+            MoneyText.text = $"{resourceRepo.GetByType(ResourceType.Money)?.Amount ?? 0}";
+            PowerText.text = $"{resourceRepo.GetByType(ResourceType.Power)?.Amount ?? 0}";
         };
 
         _cardManager.OnCardDrawn += OnCardDrawnHandler;
