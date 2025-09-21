@@ -217,7 +217,7 @@ public class CardRepository : ICardRepository
                     }
                 )
             },
-            Resources.Load<Sprite>("CardsSprite/VergiDairesi")
+            Resources.Load<Sprite>("CardsSprite/Arena")
         );
 
         // Example Card 2: Military draft with conditions
@@ -250,7 +250,7 @@ public class CardRepository : ICardRepository
                     }
                 )
             },
-        Resources.Load<Sprite>("CardsSprite/VergiDairesi")
+        Resources.Load<Sprite>("CardsSprite/Asker")
         );
 
         // Example Card 3: Resource condition
@@ -280,7 +280,7 @@ public class CardRepository : ICardRepository
                     }
                 )
             },
-            Resources.Load<Sprite>("CardsSprite/VergiDairesi")
+            Resources.Load<Sprite>("CardsSprite/ÇiftçiDestek")
         );
         
         var card4 = new CardData(
@@ -309,7 +309,7 @@ public class CardRepository : ICardRepository
                     }
                 )
             },
-            Resources.Load<Sprite>("CardsSprite/VergiDairesi")
+            Resources.Load<Sprite>("CardsSprite/Çiftlikİnşa")
         );
         
         var card5 = new CardData(
@@ -368,7 +368,8 @@ public class CardRepository : ICardRepository
                         
                     }
                 )
-            }
+            },
+            Resources.Load<Sprite>("CardsSprite/DarbeAsker")
         );
         
         var card7 = new CardData(
@@ -390,7 +391,8 @@ public class CardRepository : ICardRepository
                     new CapitalCondition(CapitalType.Population, 20)
                     }
                 )  
-            }
+            },
+            Resources.Load<Sprite>("CardsSprite/KöyYangını")
         );
         
         var card8 = new CardData(
@@ -412,7 +414,8 @@ public class CardRepository : ICardRepository
                         new CapitalCondition(CapitalType.Government, 20)
                     }
                 )
-            }
+            },
+            Resources.Load<Sprite>("CardsSprite/HazineSoygunu")
         );
         
         var card9 = new CardData(
@@ -434,7 +437,8 @@ public class CardRepository : ICardRepository
                         new CapitalCondition(CapitalType.Military, 20)
                     }
                 )
-            }
+            },
+            Resources.Load<Sprite>("CardsSprite/Baskın")
         );
         
         var card10 = new CardData(
@@ -451,7 +455,8 @@ public class CardRepository : ICardRepository
                         new CardEffect(null, CapitalType.Population, -20),
                     }
                 )
-            }
+            },
+            Resources.Load<Sprite>("CardsSprite/KışGeliyor")
         );
         var card11 = new CardData(
             id: "card_food_supply",
@@ -467,7 +472,8 @@ public class CardRepository : ICardRepository
                         new CardEffect(null, CapitalType.Government, -30),
                     }
                 )
-            }
+            },
+        Resources.Load<Sprite>("CardsSprite/Ejderha")
         );
         var card12 = new CardData(
             id: "card_food_supply",
@@ -483,7 +489,8 @@ public class CardRepository : ICardRepository
                         new CardEffect(null, CapitalType.Military, -20),
                     }
                 )
-            }
+            },
+            Resources.Load<Sprite>("CardsSprite/KaleKuşatma")
         );
         var card13 = new CardData(
             id: "card_food_supply",
@@ -508,7 +515,8 @@ public class CardRepository : ICardRepository
                     new CardEffect(null, CapitalType.Military, -30),
                 }
                 )
-            }
+            },
+            Resources.Load<Sprite>("CardsSprite/Asker")
         );
         var card14 = new CardData(
             id: "card_food_supply",
@@ -525,7 +533,8 @@ public class CardRepository : ICardRepository
                         new CardEffect(ResourceType.Money, null, +10),
                     }
                 )
-            }
+            },
+            Resources.Load<Sprite>("CardsSprite/DenizAdamYağma")
         );
         
        
