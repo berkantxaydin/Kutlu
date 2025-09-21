@@ -18,7 +18,8 @@ public class UIManager : MonoBehaviour
     public TMP_Text CardDescriptionText;
     public Transform ChoicesContainer; // parent for buttons
     public Button ChoiceButtonPrefab;   // prefab for clickable choices
-
+    public Image CardArtworkImage;
+    
     private ICardManager _cardManager;
     private IResourceRepository _resourceRepo;
     private ICapitalRepository _capitalRepo;
@@ -27,6 +28,10 @@ public class UIManager : MonoBehaviour
     public ICapitalRepository CapitalRepo { get; private set; }
     public IResourceRepository ResourceRepo { get; private set; }
 
+    void Start()
+    {
+        CardArtworkImage.gameObject.SetActive(false);
+    }
     public void Initialize(
         ITurnService turnService,
         IResourceRepository resourceRepo,
@@ -68,47 +73,52 @@ public class UIManager : MonoBehaviour
 
     public void DisplayCard(CardData card, List<CardChoice> choices)
     {
-        // Show card text
+        // Başlık ve açıklama
         CardTitleText.text = card.Title;
         CardDescriptionText.text = card.Description;
 
-        // Clear old buttons
+        // Artwork ayarı
+        if (CardArtworkImage != null)
+        {
+            if (card.Artwork != null)
+            {
+                CardArtworkImage.sprite = card.Artwork;
+                CardArtworkImage.gameObject.SetActive(true);
+            }
+            else
+            {
+                CardArtworkImage.gameObject.SetActive(false);
+            }
+        }
+
+        // Eski butonları temizle
         foreach (Transform child in ChoicesContainer)
             Destroy(child.gameObject);
 
-        // Create buttons with visual feedback
+        // Yeni butonları oluştur
         foreach (var choice in choices)
         {
             var btn = Instantiate(ChoiceButtonPrefab, ChoicesContainer);
             btn.GetComponentInChildren<TMP_Text>().text = choice.Label;
 
-            bool isChoiceAvailable = choice.IsAvailable(CapitalRepo, ResourceRepo);
-            btn.interactable = choice.IsAvailable(CapitalRepo, ResourceRepo);
+            bool isAvailable = choice.IsAvailable(CapitalRepo, ResourceRepo);
+            btn.interactable = isAvailable;
 
-
-            btn.interactable = choice.IsAvailable(CapitalRepo, ResourceRepo);
-
-
-            // Visual feedback
+            // Renk değişimi
             var buttonImage = btn.GetComponent<Image>();
-            buttonImage.color = isChoiceAvailable ? Color.white : Color.gray;
+            buttonImage.color = isAvailable ? Color.white : Color.gray;
 
-            // Click listener
+            // Tıklama
             btn.onClick.AddListener(() =>
             {
-                if (isChoiceAvailable)
-                {
+                if (isAvailable)
                     _choiceTcs?.TrySetResult(choice);
-                }
             });
 
-            // Hover only if available
-            if (isChoiceAvailable)
-            {
+            // Hover efekti sadece aktifse
+            if (isAvailable)
                 AddHoverEffect(btn);
-            }
         }
-
     }
 
     private void AddHoverEffect(Button btn)
@@ -161,6 +171,10 @@ public class UIManager : MonoBehaviour
     {
         CardTitleText.text = "";
         CardDescriptionText.text = "";
+
+        if (CardArtworkImage != null)
+            CardArtworkImage.gameObject.SetActive(false);
+
         foreach (Transform child in ChoicesContainer)
             Destroy(child.gameObject);
     }

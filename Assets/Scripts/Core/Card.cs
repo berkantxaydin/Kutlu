@@ -26,13 +26,15 @@ public class CardData
     public string Title { get; }
     public string Description { get; }
     public List<CardChoice> Choices { get; }
-
-    public CardData(string id, string title, string description, List<CardChoice> choices)
+    public Sprite Artwork { get; }
+    
+    public CardData(string id, string title, string description, List<CardChoice> choices, Sprite artwork = null)
     {
         Id = id;
         Title = title;
         Description = description;
         Choices = choices ?? new List<CardChoice>();
+        Artwork = artwork;
     }
 }
 
@@ -170,6 +172,8 @@ public interface ICardRepository
     IEnumerable<CardData> GetAll(DeckType deck);
     CardData GetById(DeckType deck, string id);
     Dictionary<DeckType, IEnumerable<CardData>> GetAllDecks();
+    
+    
 }
 
 public class CardRepository : ICardRepository
@@ -212,7 +216,8 @@ public class CardRepository : ICardRepository
                          // 0 gelir 0 gider
                     }
                 )
-            }
+            },
+            Resources.Load<Sprite>("CardsSprite/VergiDairesi")
         );
 
         // Example Card 2: Military draft with conditions
@@ -244,7 +249,8 @@ public class CardRepository : ICardRepository
                        // Lose government approval
                     }
                 )
-            }
+            },
+        Resources.Load<Sprite>("CardsSprite/VergiDairesi")
         );
 
         // Example Card 3: Resource condition
@@ -273,7 +279,8 @@ public class CardRepository : ICardRepository
                         
                     }
                 )
-            }
+            },
+            Resources.Load<Sprite>("CardsSprite/VergiDairesi")
         );
         
         var card4 = new CardData(
@@ -301,7 +308,8 @@ public class CardRepository : ICardRepository
                         
                     }
                 )
-            }
+            },
+            Resources.Load<Sprite>("CardsSprite/VergiDairesi")
         );
         
         var card5 = new CardData(
@@ -329,7 +337,8 @@ public class CardRepository : ICardRepository
                         
                     }
                 )
-            }
+            },
+            Resources.Load<Sprite>("CardsSprite/VergiDairesi")
         );
         
         var card6 = new CardData(
@@ -462,7 +471,7 @@ public class CardRepository : ICardRepository
         );
         var card12 = new CardData(
             id: "card_food_supply",
-            title: "Büyük kuşatma!",
+            title: "Kale Kuşatması!",
             description: "Düşman medeniyetler sana karşı devasa bir ordu kurmuş ve asker medeniyetin bu saldırıya hazırlanmalı. : -30f asker medeniyeti",
             choices: new List<CardChoice>
             {
@@ -476,8 +485,55 @@ public class CardRepository : ICardRepository
                 )
             }
         );
-
-
+        var card13 = new CardData(
+            id: "card_food_supply",
+            title: "Meydan Muharrebesi!",
+            description: "Düşman medeniyetler sana karşı devasa bir ordu kurmuş ve asker medeniyetin bu saldırıya hazırlanmalı. : -30f asker medeniyeti",
+            choices: new List<CardChoice>
+            {
+                new CardChoice(
+                    label: "Tamam",
+                    effects: new List<CardEffect>
+                    {
+                        new CardEffect(ResourceType.Power, null, -20),
+                        new CardEffect(null, CapitalType.Military, -10),
+                    }
+                )
+            }
+        );
+        var card14 = new CardData(
+            id: "card_food_supply",
+            title: "Düşman köyüne saldırı!",
+            description: "Düşman medeniyetler sana karşı devasa bir ordu kurmuş ve asker medeniyetin bu saldırıya hazırlanmalı. : -30f asker medeniyeti",
+            choices: new List<CardChoice>
+            {
+                new CardChoice(
+                    label: "Tamam",
+                    effects: new List<CardEffect>
+                    {
+                        new CardEffect(ResourceType.Power, null, -20),
+                        new CardEffect(null, CapitalType.Military, -10),
+                    }
+                )
+            }
+        );
+        var card15 = new CardData(
+            id: "card_food_supply",
+            title: "Kervan saldırısı!",
+            description: "Düşman medeniyetler sana karşı devasa bir ordu kurmuş ve asker medeniyetin bu saldırıya hazırlanmalı. : -30f asker medeniyeti",
+            choices: new List<CardChoice>
+            {
+                new CardChoice(
+                    label: "Tamam",
+                    effects: new List<CardEffect>
+                    {
+                        new CardEffect(ResourceType.Power, null, -20),
+                        new CardEffect(null, CapitalType.Military, -10),
+                    }
+                )
+            }
+        );
+       
         _decks[DeckType.Ilerleme][card1.Id] = card1;
         _decks[DeckType.Ilerleme][card2.Id] = card2;
         _decks[DeckType.Ilerleme][card3.Id] = card3;
@@ -493,8 +549,9 @@ public class CardRepository : ICardRepository
         _decks[DeckType.BigEvent][card10.Id] = card10;
         _decks[DeckType.BigEvent][card11.Id] = card11;
         _decks[DeckType.BigEvent][card12.Id] = card12;
-
-
+        _decks[DeckType.BigEvent][card13.Id] = card13;
+        _decks[DeckType.BigEvent][card14.Id] = card14;
+        _decks[DeckType.BigEvent][card15.Id] = card15;
         Debug.Log($"Loaded {_decks.Sum(d => d.Value.Count)} hardcoded cards across {_decks.Count} decks.");
     }
 
