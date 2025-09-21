@@ -187,6 +187,10 @@ public class CardRepository : ICardRepository
                     {
                         new CardEffect(ResourceType.Money, null, 10), // +10 altın
                         new CardEffect(ResourceType.Food, null, -10), // -10 yemek
+                    },
+                    conditions: new List<CardCondition>
+                    {
+                        new ResourceCondition(ResourceType.Food, 20)
                     }
                 ),
                 new CardChoice(
@@ -213,8 +217,14 @@ public class CardRepository : ICardRepository
                         new CardEffect(ResourceType.Power, null, +10), // Strengthen military
                         new CardEffect(ResourceType.Money, null, -10),
                         new CardEffect(ResourceType.Food, null, -5),
+                    },
+                    conditions: new List<CardCondition>
+                    {
+                        new ResourceCondition(ResourceType.Money, 20),
+                        new ResourceCondition(ResourceType.Food, 10)
                     }
                 ),
+                
                 new CardChoice(
                     label: "Red",
                     effects: new List<CardEffect>
@@ -238,6 +248,10 @@ public class CardRepository : ICardRepository
                     {
                         new CardEffect(ResourceType.Food, null, +10),
                         new CardEffect(ResourceType.Money, null, -10),
+                    },
+                    conditions: new List<CardCondition>
+                    {
+                    new ResourceCondition(ResourceType.Money, 20)
                     }
                 ),
                 new CardChoice(
@@ -262,6 +276,10 @@ public class CardRepository : ICardRepository
                     {
                         new CardEffect(null, CapitalType.Population, +10),
                         new CardEffect(ResourceType.Money, null, -20),
+                    },
+                    conditions: new List<CardCondition>
+                    {
+                    new ResourceCondition(ResourceType.Money, 30)
                     }
                 ),
                 new CardChoice(
@@ -286,6 +304,10 @@ public class CardRepository : ICardRepository
                     {
                         new CardEffect(null, CapitalType.Government, +10),
                         new CardEffect(ResourceType.Food, null, -20),
+                    },
+                    conditions: new List<CardCondition>
+                    {
+                        new ResourceCondition(ResourceType.Food, 30)
                     }
                 ),
                 new CardChoice(
@@ -311,6 +333,11 @@ public class CardRepository : ICardRepository
                         new CardEffect(ResourceType.Food, null, -10),
                         new CardEffect(ResourceType.Money, null, -20),
                         new CardEffect(null, CapitalType.Military, +10),
+                    },
+                    conditions: new List<CardCondition>
+                    {
+                        new ResourceCondition(ResourceType.Money, 30),
+                        new ResourceCondition(ResourceType.Food, 20)
                     }
                 ),
                 new CardChoice(
@@ -325,49 +352,43 @@ public class CardRepository : ICardRepository
         
         var card7 = new CardData(
             id: "card_food_supply",
-            title: "Çiftlik yangını",
-            description: "Asker medeniyetinin gücünü arttırmak için kışla inşa edebilirsin. : 10f Ordu gücü, -20 altın, -10 yemek",
+            title: "Çiftlik yangını!",
+            description: "Çiftlik medeniyetinde yangın çıktı,bu yangın sana epey yemek ve hasara sebep olucak. : -10f çiftlik gücü, -20 yemek",
             choices: new List<CardChoice>
             {
                 new CardChoice(
-                    label: "Kabul",
+                    label: "Tamam",
                     effects: new List<CardEffect>
                     {
-                        new CardEffect(ResourceType.Food, null, -10),
-                        new CardEffect(ResourceType.Money, null, -20),
-                        new CardEffect(null, CapitalType.Military, +10),
-                    }
-                ),
-                new CardChoice(
-                    label: "Red",
-                    effects: new List<CardEffect>
+                        new CardEffect(null, CapitalType.Population, -10),
+                        new CardEffect(ResourceType.Food, null, -20),
+                    },
+                    conditions: new List<CardCondition>
                     {
-                        
+                    new ResourceCondition(ResourceType.Food, 30),
+                    new CapitalCondition(CapitalType.Population, 20)
                     }
-                )
+                )  
             }
         );
         
         var card8 = new CardData(
             id: "card_food_supply",
-            title: "Kışla inşa et",
-            description: "Asker medeniyetinin gücünü arttırmak için kışla inşa edebilirsin. : 10f Ordu gücü, -20 altın, -10 yemek",
+            title: "Hazine soygunu!",
+            description: "Tüccar medeniyetinde hırsızlık oldu. Politikacılardan biri yaptığı yönünde söylenti var...: -10f tüccar gücü, -20 para",
             choices: new List<CardChoice>
             {
                 new CardChoice(
-                    label: "Kabul",
+                    label: "Tamam",
                     effects: new List<CardEffect>
                     {
-                        new CardEffect(ResourceType.Food, null, -10),
+                        new CardEffect(null, CapitalType.Government, -10),
                         new CardEffect(ResourceType.Money, null, -20),
-                        new CardEffect(null, CapitalType.Military, +10),
-                    }
-                ),
-                new CardChoice(
-                    label: "Red",
-                    effects: new List<CardEffect>
+                    },
+                    conditions: new List<CardCondition>
                     {
-                        
+                        new ResourceCondition(ResourceType.Money, 30),
+                        new CapitalCondition(CapitalType.Government, 20)
                     }
                 )
             }
@@ -375,24 +396,70 @@ public class CardRepository : ICardRepository
         
         var card9 = new CardData(
             id: "card_food_supply",
-            title: "Kışla inşa et",
-            description: "Asker medeniyetinin gücünü arttırmak için kışla inşa edebilirsin. : 10f Ordu gücü, -20 altın, -10 yemek",
+            title: "Asker kampına baskın!",
+            description: "Asker medeniyetinin bir kampına baskın : -10f Ordu gücü, -20 asker",
             choices: new List<CardChoice>
             {
                 new CardChoice(
-                    label: "Kabul",
+                    label: "Tamam",
                     effects: new List<CardEffect>
                     {
-                        new CardEffect(ResourceType.Food, null, -10),
-                        new CardEffect(ResourceType.Money, null, -20),
-                        new CardEffect(null, CapitalType.Military, +10),
+                        new CardEffect(ResourceType.Power, null, -20),
+                        new CardEffect(null, CapitalType.Military, -10),
+                    },
+                    conditions: new List<CardCondition>
+                    {
+                        new ResourceCondition(ResourceType.Power, 30),
+                        new CapitalCondition(CapitalType.Military, 20)
                     }
-                ),
+                )
+            }
+        );
+        
+        var card10 = new CardData(
+            id: "card_food_supply",
+            title: "Kış geliyor...",
+            description: "İklim değişiyor fakat hasatların buna hazır değil.: -30f çiftlik medeniyeti",
+            choices: new List<CardChoice>
+            {
                 new CardChoice(
-                    label: "Red",
+                    label: "Tamam",
                     effects: new List<CardEffect>
                     {
-                        
+                        new CardEffect(ResourceType.Food, null, -20),
+                        new CardEffect(null, CapitalType.Population, -10),
+                    }
+                )
+            }
+        );
+        var card11 = new CardData(
+            id: "card_food_supply",
+            title: "Ejderha saldırısı!",
+            description: "Tüccar medeniyet şehrine bir ejderha ağzından alevler çıkararak saldırıyor!: -30f tüccar medeniyeti",
+            choices: new List<CardChoice>
+            {
+                new CardChoice(
+                    label: "Tamam",
+                    effects: new List<CardEffect>
+                    {
+                        new CardEffect(ResourceType.Money, null, -20),
+                        new CardEffect(null, CapitalType.Government, -10),
+                    }
+                )
+            }
+        );
+        var card12 = new CardData(
+            id: "card_food_supply",
+            title: "Büyük kuşatma!",
+            description: "Düşman medeniyetler sana karşı devasa bir ordu kurmuş ve asker medeniyetin bu saldırıya hazırlanmalı. : -30f asker medeniyeti",
+            choices: new List<CardChoice>
+            {
+                new CardChoice(
+                    label: "Tamam",
+                    effects: new List<CardEffect>
+                    {
+                        new CardEffect(ResourceType.Power, null, -20),
+                        new CardEffect(null, CapitalType.Military, -10),
                     }
                 )
             }
@@ -408,6 +475,9 @@ public class CardRepository : ICardRepository
         _cardsIlerleme[card7.Id] = card7; // Zarar Kartları
         _cardsIlerleme[card8.Id] = card8;
         _cardsIlerleme[card9.Id] = card9;
+        _cardsIlerleme[card10.Id] = card10; //Big event kartları
+        _cardsIlerleme[card11.Id] = card11;
+        _cardsIlerleme[card12.Id] = card12;
         
         
         Debug.Log($"Loaded {_cardsIlerleme.Count} hardcoded cards.");
