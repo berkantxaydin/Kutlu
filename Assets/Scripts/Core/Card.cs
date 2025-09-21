@@ -12,6 +12,14 @@ public enum CapitalType
     Military
 }
 
+public enum DeckType
+{
+    Ilerleme,
+    KaynakDestek,
+    Zarar,
+    BigEvent
+}
+
 public class CardData
 {
     public string Id { get; }
@@ -159,14 +167,15 @@ public class CapitalCondition : CardCondition
 
 public interface ICardRepository
 {
-    IEnumerable<CardData> GetAll();
-    CardData GetById(string id);
+    IEnumerable<CardData> GetAll(DeckType deck);
+    CardData GetById(DeckType deck, string id);
+    Dictionary<DeckType, IEnumerable<CardData>> GetAllDecks();
 }
 
 public class CardRepository : ICardRepository
 {
-    private readonly Dictionary<string, CardData> _cardsIlerleme = new();
-    private readonly Dictionary<string, CardData> _cardsKaynakDestek = new();
+    private readonly Dictionary<DeckType, Dictionary<string, CardData>> _decks = new();
+
     public CardRepository()
     {
         LoadCardsHardcoded();
@@ -174,6 +183,9 @@ public class CardRepository : ICardRepository
 
     private void LoadCardsHardcoded()
     {
+        foreach (DeckType deckType in Enum.GetValues(typeof(DeckType)))
+            _decks[deckType] = new Dictionary<string, CardData>();
+
         // Example Card 1: Government support
         var card1 = new CardData(
             id: "card_government_help",
@@ -465,28 +477,34 @@ public class CardRepository : ICardRepository
             }
         );
 
-       
-        _cardsIlerleme[card1.Id] = card1; // İlerleme
-        _cardsIlerleme[card2.Id] = card2;
-        _cardsIlerleme[card3.Id] = card3;
-        _cardsIlerleme[card4.Id] = card4; // KaynakDestek
-        _cardsIlerleme[card5.Id] = card5;
-        _cardsIlerleme[card6.Id] = card6;
-        _cardsIlerleme[card7.Id] = card7; // Zarar Kartları
-        _cardsIlerleme[card8.Id] = card8;
-        _cardsIlerleme[card9.Id] = card9;
-        _cardsIlerleme[card10.Id] = card10; //Big event kartları
-        _cardsIlerleme[card11.Id] = card11;
-        _cardsIlerleme[card12.Id] = card12;
-        
-        
-        Debug.Log($"Loaded {_cardsIlerleme.Count} hardcoded cards.");
+
+        _decks[DeckType.Ilerleme][card1.Id] = card1;
+        _decks[DeckType.Ilerleme][card2.Id] = card2;
+        _decks[DeckType.Ilerleme][card3.Id] = card3;
+
+        _decks[DeckType.KaynakDestek][card4.Id] = card4;
+        _decks[DeckType.KaynakDestek][card5.Id] = card5;
+        _decks[DeckType.KaynakDestek][card6.Id] = card6;
+
+        _decks[DeckType.Zarar][card7.Id] = card7;
+        _decks[DeckType.Zarar][card8.Id] = card8;
+        _decks[DeckType.Zarar][card9.Id] = card9;
+
+        _decks[DeckType.BigEvent][card10.Id] = card10;
+        _decks[DeckType.BigEvent][card11.Id] = card11;
+        _decks[DeckType.BigEvent][card12.Id] = card12;
+
+
+        Debug.Log($"Loaded {_decks.Sum(d => d.Value.Count)} hardcoded cards across {_decks.Count} decks.");
     }
 
-    public IEnumerable<CardData> GetAll() => _cardsIlerleme.Values;
-   
-    public CardData GetById(string id) =>
-        _cardsIlerleme.TryGetValue(id, out var card) ? card : null;
-   
-    
+    public IEnumerable<CardData> GetAll(DeckType deck) =>
+           _decks.TryGetValue(deck, out var cards) ? cards.Values : Enumerable.Empty<CardData>();
+
+    public CardData GetById(DeckType deck, string id) =>
+        _decks.TryGetValue(deck, out var cards) && cards.TryGetValue(id, out var card) ? card : null;
+
+    public Dictionary<DeckType, IEnumerable<CardData>> GetAllDecks() =>
+        _decks.ToDictionary(d => d.Key, d => d.Value.Values.AsEnumerable());
+
 }
