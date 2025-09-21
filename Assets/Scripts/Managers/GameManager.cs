@@ -12,6 +12,17 @@ public class GameManager
 
     private readonly int _turnsPerCard = 3; // show card every 3 turns
 
+    private readonly DeckType[] _deckOrder =
+    {
+        DeckType.Ilerleme,
+        DeckType.KaynakDestek,
+        DeckType.Zarar,
+        DeckType.BigEvent
+    };
+
+    private int _deckIndex = 0;
+
+
     public GameManager(
         ITurnService turnService,
         ICardManager cardManager,
@@ -38,9 +49,12 @@ public class GameManager
         {
             _turnService.Pause();
 
-            var drawResult = await _cardManager.DrawCardAsync();
+            // pick deck based on cycle
+            var deck = _deckOrder[_deckIndex];
+            _deckIndex = (_deckIndex + 1) % _deckOrder.Length;
 
-            // Only wait for choice if there are available choices
+            var drawResult = await _cardManager.DrawCardAsync(deck);
+
             if (drawResult?.Choices?.Count > 0)
             {
                 var chosen = await _uiManager.WaitForChoiceAsync();
