@@ -246,7 +246,8 @@ public class CardRepository : ICardRepository
                     label: "Red",
                     effects: new List<CardEffect>
                     {
-                       // Lose government approval
+                        new CardEffect(ResourceType.Food, null, +10),
+                        new CardEffect(ResourceType.Money, null, -10),
                     }
                 )
             },
@@ -276,7 +277,8 @@ public class CardRepository : ICardRepository
                     label: "Red",
                     effects: new List<CardEffect>
                     {
-                        
+                        new CardEffect(ResourceType.Food, null, +10),
+                        new CardEffect(ResourceType.Money, null, -10),
                     }
                 )
             },
